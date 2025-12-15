@@ -1,0 +1,30 @@
+name: Daily Check-in
+
+on:
+  schedule:
+    # 每天北京时间上午 9 点运行
+    - cron: '0 1 * * *'
+  workflow_dispatch: # 允许手动测试
+
+jobs:
+  signin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        env:
+          COOKIE: ${{ secrets.COOKIE }}
+        run: |
+          # 使用 sed 命令将代码里的 cookie 变量替换为保密的 Secret
+          # 这样你就不用修改 index.py 文件了
+          sed -i "s/cookie = .*/cookie = '${COOKIE}'/" index.py
+          python index.py
